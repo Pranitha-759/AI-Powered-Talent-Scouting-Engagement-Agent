@@ -3,7 +3,7 @@
 TalentScout AI is a premium, AI-driven recruitment platform designed to bridge the gap between job descriptions and top-tier talent. By leveraging intelligent PDF parsing, custom matching algorithms, and a simulated AI outreach agent, it provides a seamless end-to-end hiring experience.
 
 ![Premium UI Showcase](https://img.shields.io/badge/UI-Premium_Glassmorphism-blueviolet)
-![Backend](https://img.shields.io/badge/Backend-Node.js_%26_MySQL-blue)
+![Backend](https://img.shields.io/badge/Backend-Node.js_%26_SQLite-blue)
 ![AI](https://img.shields.io/badge/AI-Custom_Matching_Engine-green)
 
 ---
@@ -38,7 +38,7 @@ TalentScout AI is a premium, AI-driven recruitment platform designed to bridge t
 | :--- | :--- |
 | **Frontend** | React (Vite), Material UI (MUI), Framer Motion Effects |
 | **Backend** | Node.js, Express.js |
-| **Database** | MySQL (User Auth, Candidate Storage) |
+| **Database** | SQLite (Zero-Config, File-based) |
 | **AI Processing** | `pdf-parse` (v2), Custom Sentiment & Matching Logic |
 | **Styling** | Vanilla CSS (Enhanced Design System), Glassmorphism |
 

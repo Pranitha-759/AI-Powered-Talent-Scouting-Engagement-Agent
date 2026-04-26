@@ -1,60 +1,76 @@
-const mysql = require('mysql2/promise');
-require('dotenv').config();
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
+const fs = require('fs');
 
-let pool;
+let db;
 
 const connectDB = async () => {
-    try {
-        pool = mysql.createPool({
-            host: process.env.DB_HOST,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASSWORD,
-            database: process.env.DB_NAME,
-            waitForConnections: true,
-            connectionLimit: 10,
-            queueLimit: 0
+    return new Promise((resolve, reject) => {
+        const dbPath = path.join(__dirname, '../database.sqlite');
+        
+        db = new sqlite3.Database(dbPath, async (err) => {
+            if (err) {
+                console.error('SQLite connection error:', err.message);
+                resolve(null);
+            } else {
+                console.log('SQLite connected (Local File Mode)...');
+                
+                // Initialize tables
+                db.serialize(() => {
+                    db.run(`
+                        CREATE TABLE IF NOT EXISTS users (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            name TEXT NOT NULL,
+                            email TEXT NOT NULL UNIQUE,
+                            password TEXT NOT NULL,
+                            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                        )
+                    `);
+
+                    db.run(`
+                        CREATE TABLE IF NOT EXISTS candidates (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            name TEXT NOT NULL,
+                            skills TEXT,
+                            experience INTEGER,
+                            match_score INTEGER,
+                            interest_score INTEGER,
+                            final_score INTEGER,
+                            status TEXT,
+                            user_id INTEGER NOT NULL
+                        )
+                    `);
+                });
+
+                // Create a mock "pool" interface for compatibility
+                const poolWrapper = {
+                    query: (sql, params) => {
+                        return new Promise((res, rej) => {
+                            const upperSql = sql.trim().toUpperCase();
+                            if (upperSql.startsWith('SELECT')) {
+                                db.all(sql, params, (err, rows) => {
+                                    if (err) rej(err);
+                                    else res([rows]); // Wrap in array to match MySQL [rows, fields]
+                                });
+                            } else {
+                                db.run(sql, params, function(err) {
+                                    if (err) rej(err);
+                                    else res([{ insertId: this.lastID, affectedRows: this.changes }]);
+                                });
+                            }
+                        });
+                    },
+                    getConnection: async () => ({
+                        query: poolWrapper.query,
+                        release: () => {}
+                    })
+                };
+                
+                db.pool = poolWrapper;
+                resolve(poolWrapper);
+            }
         });
-
-        // Test connection and initialize tables
-        const connection = await pool.getConnection();
-        console.log('MySQL connected...');
-
-        // Auto-initialize tables
-        await connection.query(`
-            CREATE TABLE IF NOT EXISTS users (
-                id INT NOT NULL AUTO_INCREMENT,
-                name VARCHAR(255) NOT NULL,
-                email VARCHAR(255) NOT NULL,
-                password VARCHAR(255) NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (id),
-                UNIQUE KEY email_unique (email)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        `);
-
-        await connection.query(`
-            CREATE TABLE IF NOT EXISTS candidates (
-                id INT NOT NULL AUTO_INCREMENT,
-                name VARCHAR(255) NOT NULL,
-                skills TEXT,
-                experience INT,
-                match_score INT,
-                interest_score INT,
-                final_score INT,
-                status VARCHAR(50),
-                user_id INT NOT NULL,
-                PRIMARY KEY (id)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        `);
-
-        connection.release();
-        return pool;
-    } catch (err) {
-        console.error('MySQL connection/init error:', err.message);
-        console.log('Falling back to mock data mode...');
-        pool = null; // Ensure pool is null so routes use demo mode
-        return null;
-    }
+    });
 };
 
-module.exports = { connectDB, getPool: () => pool };
+module.exports = { connectDB, getPool: () => db ? db.pool : null };
