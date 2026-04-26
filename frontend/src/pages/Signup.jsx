@@ -3,7 +3,7 @@ import {
   Container, Typography, Box, TextField, Button, Paper, 
   Link, Alert, CircularProgress, InputAdornment, IconButton
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Psychology, Visibility, VisibilityOff, Email, Lock, Person } from '@mui/icons-material';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
@@ -134,7 +134,8 @@ function Signup() {
             <Typography variant="body2" color="text.secondary">
               Already a member?{' '}
               <Link 
-                href="/login" 
+                component={RouterLink}
+                to="/login" 
                 underline="none" 
                 sx={{ 
                   color: '#a855f7', 
