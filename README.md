@@ -91,5 +91,3 @@ npm run dev
 
 ---
 
-### 👨‍💻 Developed by
-**Antigravity AI Coding Assistant** for a premium hackathon-ready experience.
