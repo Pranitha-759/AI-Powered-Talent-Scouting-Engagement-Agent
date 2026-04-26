@@ -8,7 +8,7 @@ import { Psychology, Visibility, VisibilityOff, Email, Lock } from '@mui/icons-m
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 function Login() {
   const [email, setEmail] = useState('');

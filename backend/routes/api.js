@@ -189,10 +189,8 @@ router.post('/upload-jd', upload.single('jd_file'), async (req, res) => {
         if (req.file.mimetype === 'application/pdf') {
             try {
                 const dataBuffer = fs.readFileSync(filePath);
-                const parser = new PDFParse({ data: dataBuffer });
-                const result = await parser.getText();
-                jdText = result.text;
-                await parser.destroy();
+                const data = await pdf(dataBuffer);
+                jdText = data.text;
             } catch (pdfErr) {
                 console.error('PDF Parse Error:', pdfErr);
                 throw new Error(`Failed to parse PDF: ${pdfErr.message}`);
