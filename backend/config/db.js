@@ -60,6 +60,7 @@ const connectDB = async () => {
                             }
                         });
                     },
+                    execute: (sql, params) => poolWrapper.query(sql, params),
                     getConnection: async () => ({
                         query: poolWrapper.query,
                         release: () => {}
