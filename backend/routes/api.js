@@ -10,7 +10,7 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { PDFParse } = require('pdf-parse');
+const pdf = require('pdf-parse');
 const auth = require('../middleware/auth');
 
 // Multer Setup for File Uploads
